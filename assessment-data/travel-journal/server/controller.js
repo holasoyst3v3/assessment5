@@ -263,7 +263,7 @@ module.exports = {
         })
     };
 
-    getCity: (req, res) => {
+    getCities: (req, res) => {
     sequelize.query(`
         SELECT * FROM countries c
         JOIN cities u ON u.country_id = c.country_id
@@ -278,4 +278,19 @@ module.exports = {
                 info: err
             })
         })
-    }
+    };
+
+    deleteCities: (req, res) => {
+        sequelize.query(`
+            DELETE FROM cities WHERE city_id = ${city}
+            `)
+            .then(dbRes => {res.status(200).send(dbRes[0]);
+            })
+            .catch(err => {
+                console.log(err)
+                res.status(500).send({
+                    message: 'DB error',
+                    info: err
+                })
+            })
+        };
