@@ -4,17 +4,22 @@ const { CONNECTION_STRING } = process.env;
 const Sequelize = require("sequelize");
 
 const sequelize = new Sequelize(CONNECTION_STRING, {
-    dialect: "postgres",
-    dialectOptions: {
-      ssl: {
-        rejectUnauthorized: false,
-      },
+  dialect: "postgres",
+  dialectOptions: {
+    ssl: {
+      rejectUnauthorized: false,
     },
-  });
+  },
+});
+
+
+
 
 module.exports = {
-    seed: (req, res) => {
-        sequelize.query(`
+  seed: (req, res) => {
+    sequelize
+      .query(
+        `
             drop table if exists cities;
             drop table if exists countries;
 
@@ -227,70 +232,91 @@ module.exports = {
             ('Yemen'),
             ('Zambia'),
             ('Zimbabwe');
-        `).then(() => {
-            console.log('DB seeded!')
-            res.sendStatus(200)
-        }).catch(err => console.log('error seeding DB', err))
-    }
-};
-    getCountries: (req, res) => {
-    sequelize.query(`
+        `
+      )
+      .then(() => {
+        console.log("DB seeded!");
+        res.sendStatus(200);
+      })
+      .catch((err) => console.log("error seeding DB", err));
+  },
+
+  getCountries: (req, res) => {
+    sequelize
+      .query(
+        `
         SELECT * FROM countries
-        `)
-        .then(dbRes => {res.status(200).send(dbRes[0]);
-        })
-        .catch(err => {
-            console.log(err)
-            res.status(500).send({
-                message: 'DB error',
-                info: err
-            })
-        })
-    };
+        `
+      )
+      .then((dbRes) => {
+        res.status(200).send(dbRes[0]);
+      })
+      .catch((err) => {
+        console.log(err);
+        res.status(500).send({
+          message: "DB error",
+          info: err,
+        });
+      });
+  },
 
-    createCity: (req, res) => {
-    sequelize.query(`
-        insert into cities (name, rating, country_id)
-        `)
-        .then(dbRes => {res.status(200).send(dbRes[0]);
-    })
-        .catch(err => {
-            console.log(err)
-            res.status(500).send({
-                message: 'DB error',
-                info: err
-            })
-        })
-    };
+  createCity: (req, res) => {
+      const { name, rating, countryId } = req.body
+    sequelize
+      .query(
+        `
+        insert into cities (name, rating, country_id) VALUES ('${name}',${rating}, ${coutryId})
+        `
+      )
+      .then(() => {
+        res.SendStatus(200).send();
+      })
+      .catch((err) => {
+        console.log(err);
+        res.status(500).send({
+          message: "DB error",
+          info: err,
+        });
+      });
+  },
 
-    getCities: (req, res) => {
-    sequelize.query(`
+  getCities: (req, res) => {
+    sequelize
+      .query(
+        `
         SELECT * FROM countries c
         JOIN cities u ON u.country_id = c.country_id
         WHERE u.country_id = c.country_id
-        `)
-        .then(dbRes => {res.status(200).send(dbRes[0]);
-        })
-        .catch(err => {
-            console.log(err)
-            res.status(500).send({
-                message: 'DB error',
-                info: err
-            })
-        })
-    };
+        `
+      )
+      .then((dbRes) => {
+        res.status(200).send(dbRes[0]);
+      })
+      .catch((err) => {
+        console.log(err);
+        res.status(500).send({
+          message: "DB error",
+          info: err,
+        });
+      });
+  },
 
-    deleteCities: (req, res) => {
-        sequelize.query(`
-            DELETE FROM cities WHERE city_id = ${city}
-            `)
-            .then(dbRes => {res.status(200).send(dbRes[0]);
-            })
-            .catch(err => {
-                console.log(err)
-                res.status(500).send({
-                    message: 'DB error',
-                    info: err
-                })
-            })
-        };
+  deleteCity: (req, res) => {
+    sequelize
+      .query(
+        `
+            DELETE FROM cities WHERE city_id = ${req.params.id}
+            `
+      )
+      .then((dbRes) => {
+        res.status(200).send(dbRes[0]);
+      })
+      .catch((err) => {
+        console.log(err);
+        res.status(500).send({
+          message: "DB error",
+          info: err,
+        });
+      });
+  },
+};
